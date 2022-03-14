@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class EnemyMovement : MonoBehaviour
 {
@@ -40,6 +41,8 @@ public class EnemyMovement : MonoBehaviour
     private GameObject display_10_Enemy;
     private GameObject display_20_Enemy;
     private GameObject display_30_Enemy;
+	
+	private int realEnemiesRemaining = 0;
     
     // Start is called before the first frame update
     void Start()
@@ -55,7 +58,7 @@ public class EnemyMovement : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         // Get highScore value from Player Preferences constantly throughout the game
         highScore = PlayerPrefs.GetInt("HighScore");
@@ -97,6 +100,7 @@ public class EnemyMovement : MonoBehaviour
                 Destroy(display_30_Enemy.gameObject);
                 // Spawn Mystery Enemy
                 var spawnedMysteryEnemy = Instantiate(MysteryEnemy, new Vector3(0f, 15f, 0f), levelRoot.rotation);
+				realEnemiesRemaining++;
                 // Subscribe to the OnWallCollide Method with OnWallCollide Event
                 FindObjectOfType<Enemy>().wallCollideEvent += OnWallCollide;
                 FindObjectOfType<Enemy>().enemy_mystery_DestroyedEvent += OnEnemy_mystery_Destroyed;
@@ -123,8 +127,9 @@ public class EnemyMovement : MonoBehaviour
                                     FindObjectOfType<Enemy>().wallCollideEvent += OnWallCollide;
                                     FindObjectOfType<Enemy>().enemy_10_DestroyedEvent += OnEnemy_10_Destroyed;
                                     // Increase Total Enemies and Enemies Remaining
-                                    totalEnemies++;
-                                    enemiesRemaining++;
+                                    totalEnemies +=1;
+                                    enemiesRemaining +=1;
+									realEnemiesRemaining++;
                                 }
                                 // If on the second 2 rows spawn 20 point enemy
                                 else if (i >= 4 && i < 8)
@@ -134,8 +139,9 @@ public class EnemyMovement : MonoBehaviour
                                     // Subscribe to the OnWallCollide Method with OnWallCollide Event
                                     FindObjectOfType<Enemy>().wallCollideEvent += OnWallCollide;
                                     FindObjectOfType<Enemy>().enemy_20_DestroyedEvent += OnEnemy_20_Destroyed;
-                                    totalEnemies++;
-                                    enemiesRemaining++;
+                                    totalEnemies +=1;
+                                    enemiesRemaining +=1;
+									realEnemiesRemaining++;
                                 }
                                 // If on last row spawn 30 point enemy
                                 else
@@ -145,20 +151,22 @@ public class EnemyMovement : MonoBehaviour
                                     // Subscribe to the OnWallCollide Method with OnWallCollide Event
                                     FindObjectOfType<Enemy>().wallCollideEvent += OnWallCollide;
                                     FindObjectOfType<Enemy>().enemy_30_DestroyedEvent += OnEnemy_30_Destroyed;
-                                    totalEnemies++;
-                                    enemiesRemaining++;
+                                    totalEnemies +=1;
+                                    enemiesRemaining +=1;
+									realEnemiesRemaining++;
                                 }
                             }
                         }
                     }
                 }
                 enemiesSpawned = true;
+				Debug.Log("Real Enemies Start: "+ realEnemiesRemaining);
             }
             // Enemies Move Towards Player Section
             currentY = this.transform.position.y;
             // Step Right until first enemy hits Right edge (USE DELEGATE FUNCTION)
             accumulatedTime += Time.deltaTime;
-            if (accumulatedTime > (enemiesRemaining / totalEnemies))
+            if (accumulatedTime > (enemiesRemaining / totalEnemies * 2))
             {
                 totalTime += 1f;
                 accumulatedTime = 0f;
@@ -177,16 +185,10 @@ public class EnemyMovement : MonoBehaviour
                 }
             }
         }
-        // Step Down 
-        // Turn boolean
-        // Step Left until first enemy hits Left edge (USE DELEGATE FUNCTION)
-        // Step Down
-        // Turn boolean
         
-        // Enemies Speed up as more are destroyed
-        // Listen for total number of enemies (USE DELEGATE)
-        // Every time enemies decreased by 1 reduce time update interval by fraction equal to (number of enemies remaining/starting number of enemies)
-        // instead of (accumulatedTime > 1f) take it down incrementally to (accumulatedTime > .01f)
+		if(gameStarted && realEnemiesRemaining == 0){
+			SceneManager.LoadScene("Credits", LoadSceneMode.Single);
+		}
     }
 
     public void resetHighScore()
@@ -214,6 +216,8 @@ public class EnemyMovement : MonoBehaviour
     {
         Debug.Log("Mystery Enemy Destroyed Delegate Heard in EnemyMovement Class!");
         currentScore += 100;
+		realEnemiesRemaining--;
+		Debug.Log("Real Enemies Remaining: " + realEnemiesRemaining);
         if (currentScore > highScore)
         {
             PlayerPrefs.SetInt("HighScore", currentScore);
@@ -222,9 +226,10 @@ public class EnemyMovement : MonoBehaviour
     public void OnEnemy_10_Destroyed()
     {
         Debug.Log("Enemy 10 Destroyed Delegate Heard in EnemyMovement Class!");
-        enemiesRemaining -= .5f;
+        enemiesRemaining -= .25f;
+		realEnemiesRemaining--;
         currentScore += 10;
-        Debug.Log("Enemies Remaining: " + enemiesRemaining);
+        Debug.Log("Real Enemies Remaining: " + realEnemiesRemaining);
         if (currentScore > highScore)
         {
             PlayerPrefs.SetInt("HighScore", currentScore);
@@ -233,9 +238,10 @@ public class EnemyMovement : MonoBehaviour
     public void OnEnemy_20_Destroyed()
     {
         Debug.Log("Enemy 20 Destroyed Delegate Heard in EnemyMovement Class!");
-        enemiesRemaining -= .5f;
+        enemiesRemaining -= .25f;
+		realEnemiesRemaining--;
         currentScore += 20;
-        Debug.Log("Enemies Remaining: " + enemiesRemaining);
+        Debug.Log("Real Enemies Remaining: " + realEnemiesRemaining);
         if (currentScore > highScore)
         {
             PlayerPrefs.SetInt("HighScore", currentScore);
@@ -244,9 +250,10 @@ public class EnemyMovement : MonoBehaviour
     public void OnEnemy_30_Destroyed()
     {
         Debug.Log("Enemy 30 Destroyed Delegate Heard in EnemyMovement Class!");
-        enemiesRemaining -= .5f;
+        enemiesRemaining -= .25f;
+		realEnemiesRemaining--;
         currentScore += 30;
-        Debug.Log("Enemies Remaining: " + enemiesRemaining);
+        Debug.Log("Real Enemies Remaining: " + realEnemiesRemaining);
         if (currentScore > highScore)
         {
             PlayerPrefs.SetInt("HighScore", currentScore);

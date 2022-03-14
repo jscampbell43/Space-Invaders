@@ -8,7 +8,12 @@ public class Enemy : MonoBehaviour
     public Transform shootingOffset;
     private float accumulatedTime = 0f;
     private float totalTime = 0f;
+ 	private Animator enemyAnimator;
 
+
+	void Start(){
+		enemyAnimator = GetComponent<Animator>();
+	}
    
     void Update()
     {
@@ -21,7 +26,7 @@ public class Enemy : MonoBehaviour
             GameObject shot = Instantiate(bullet, shootingOffset.position, Quaternion.identity);
             Physics2D.IgnoreCollision(shot.GetComponent<Collider2D>(), GetComponent<Collider2D>());
             Debug.Log("Bang!");
-
+			enemyAnimator.SetTrigger("EnemyShoot");
             Destroy(shot, 10f);
         }
     }
@@ -40,7 +45,7 @@ public class Enemy : MonoBehaviour
       }
       else if (collision.gameObject.name == "Bullet(Clone)")
       {
-          if (this.gameObject.name == "Enemy_10Pts(Clone)")
+          if (this.gameObject.name == "Enemy_10Pts_Animated(Clone)")
           {
               if (enemy_10_DestroyedEvent != null)
               {
@@ -48,7 +53,7 @@ public class Enemy : MonoBehaviour
                   enemy_10_DestroyedEvent();
               }
           }
-          else if (this.gameObject.name == "Enemy_20Pts(Clone)")
+          else if (this.gameObject.name == "Enemy_20Pts_Animated(Clone)")
           {
               if (enemy_20_DestroyedEvent != null)
               {
@@ -56,7 +61,7 @@ public class Enemy : MonoBehaviour
                   enemy_20_DestroyedEvent();
               }
           }
-          else if (this.gameObject.name == "Enemy_30Pts(Clone)")
+          else if (this.gameObject.name == "Enemy_30Pts_Animated(Clone)")
           {
               if (enemy_30_DestroyedEvent != null)
               {
@@ -64,7 +69,7 @@ public class Enemy : MonoBehaviour
                   enemy_30_DestroyedEvent();
               }
           }
-          else if (this.gameObject.name == "Enemy_Mystery(Clone)")
+          else if (this.gameObject.name == "Enemy_Mystery_Animated(Clone)")
           {
               if (enemy_mystery_DestroyedEvent != null)
               {
@@ -72,7 +77,8 @@ public class Enemy : MonoBehaviour
                   enemy_mystery_DestroyedEvent();
               }
           }
-          Destroy(this.gameObject);
+		  enemyAnimator.SetTrigger("Destroyed");
+          Destroy(this.gameObject, 1.0f);
           Destroy(collision.gameObject);
       }
     }
